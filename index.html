@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Which House Claims You?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #15110d;
+    --ink-panel: #1f1912;
+    --parchment: #e9ddc5;
+    --parchment-muted: #a99a86;
+    --gold: #c6a254;
+    --hairline: #3a2d22;
+    --shadow: rgba(0,0,0,0.45);
+
+    --kaplan: #c1672b;
+    --lobo: #7c93a6;
+    --wolfe: #9398a1;
+    --greystone: #7a8a74;
+    --ravenfall: #9a3a60;
+    --briarwyn: #8a9a4a;
+    --drake: #6e2f22;
+    --ironmaw: #9c4a3f;
+    --redwick: #4f7a52;
+    --thorne: #b5422f;
+    --accent: var(--gold);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #15110d;
+      --ink-panel: #1f1912;
+      --parchment: #e9ddc5;
+      --parchment-muted: #a99a86;
+      --gold: #c6a254;
+      --hairline: #3a2d22;
+      --shadow: rgba(0,0,0,0.45);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ink: #15110d;
+    --ink-panel: #1f1912;
+    --parchment: #e9ddc5;
+    --parchment-muted: #a99a86;
+    --gold: #c6a254;
+    --hairline: #3a2d22;
+    --shadow: rgba(0,0,0,0.45);
+  }
+
+  :root[data-theme="light"] {
+    --ink: #f1e8d0;
+    --ink-panel: #fbf5e4;
+    --parchment: #2a2015;
+    --parchment-muted: #71614c;
+    --gold: #8a6a1f;
+    --hairline: #d9c8a3;
+    --shadow: rgba(80,65,40,0.18);
+  }
+
+  * { box-sizing: border-box; }
+
+  html {
+    scroll-padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+
+  body {
+    background: var(--ink);
+    color: var(--parchment);
+    font-family: 'Crimson Text', Georgia, 'Times New Roman', serif;
+    min-height: 100%;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-left: 16px;
+    padding-right: 16px;
+    background-image:
+      radial-gradient(ellipse at 20% 10%, rgba(198,162,84,0.06), transparent 55%),
+      radial-gradient(ellipse at 85% 90%, rgba(198,162,84,0.05), transparent 50%);
+  }
+
+  .stage {
+    width: 100%;
+    max-width: 620px;
+    margin: 48px 0;
+  }
+
+  .card {
+    background: var(--ink-panel);
+    border: 1px solid var(--hairline);
+    border-radius: 2px;
+    padding: 44px 40px;
+    box-shadow: 0 20px 60px var(--shadow);
+    position: relative;
+  }
+
+  .card::before {
+    content: "";
+    position: absolute;
+    inset: 8px;
+    border: 1px solid var(--hairline);
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  @media (max-width: 480px) {
+    .card { padding: 32px 22px; }
+    .card::before { inset: 6px; }
+  }
+
+  .progress-track {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 28px;
+  }
+
+  .progress-tick {
+    flex: 1;
+    height: 2px;
+    background: var(--hairline);
+    transition: background 0.4s ease;
+  }
+
+  .progress-tick.done {
+    background: var(--gold);
+  }
+
+  .step-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--parchment-muted);
+    letter-spacing: 0.02em;
+    margin-bottom: 6px;
+  }
+
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 2.1rem;
+    line-height: 1.15;
+    margin: 0 0 14px;
+    color: var(--parchment);
+  }
+
+  h2.question {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 1.55rem;
+    line-height: 1.3;
+    margin: 0 0 26px;
+    color: var(--parchment);
+  }
+
+  p.lede {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--parchment-muted);
+    margin: 0 0 30px;
+    max-width: 50ch;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .option {
+    text-align: left;
+    background: transparent;
+    border: 1px solid var(--hairline);
+    color: var(--parchment);
+    font-family: 'Crimson Text', serif;
+    font-size: 1.08rem;
+    line-height: 1.45;
+    padding: 16px 20px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
+  }
+
+  .option:hover {
+    border-color: var(--gold);
+    background: rgba(198,162,84,0.06);
+  }
+
+  .option:active {
+    transform: scale(0.995);
+  }
+
+  .option:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+  }
+
+  .begin-btn, .restart-btn {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 1.15rem;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+    background: var(--gold);
+    border: none;
+    padding: 14px 32px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: filter 0.2s ease, transform 0.15s ease;
+  }
+
+  .begin-btn:hover, .restart-btn:hover {
+    filter: brightness(1.08);
+  }
+
+  .begin-btn:active, .restart-btn:active {
+    transform: scale(0.98);
+  }
+
+  .begin-btn:focus-visible, .restart-btn:focus-visible {
+    outline: 2px solid var(--parchment);
+    outline-offset: 3px;
+  }
+
+  .fade {
+    animation: fadeIn 0.35s ease both;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fade { animation: none; }
+    .option, .begin-btn, .restart-btn { transition: none; }
+  }
+
+  .sigil {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
+    display: block;
+  }
+
+  .result-house {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-style: italic;
+    font-size: 2.4rem;
+    text-align: center;
+    margin: 0 0 4px;
+    color: var(--result-color, var(--gold));
+  }
+
+  .result-seat {
+    text-align: center;
+    color: var(--parchment-muted);
+    font-size: 1rem;
+    margin: 0 0 26px;
+    font-style: italic;
+  }
+
+  .result-body {
+    font-size: 1.12rem;
+    line-height: 1.65;
+    color: var(--parchment);
+    margin: 0 0 18px;
+  }
+
+  .result-traits {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 30px;
+  }
+
+  .trait-pill {
+    border: 1px solid var(--result-color, var(--gold));
+    color: var(--result-color, var(--gold));
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.95rem;
+    padding: 4px 14px;
+    border-radius: 999px;
+  }
+
+  .footer-note {
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="card">
+
+    <!-- INTRO -->
+    <div id="intro" class="screen active fade">
+      <div class="step-label">a sorting of Sleveran</div>
+      <h1>Which House Claims You?</h1>
+      <p class="lede">
+        Seven questions. No right answers, only honest ones. By the end,
+        one of Sleveran's noble houses will know you for its own —
+        Kaplan, Lobo, Wolfe, Greystone, Ravenfall, Briarwyn, Drake,
+        Ironmaw, Redwick, or Thorne.
+      </p>
+      <button class="begin-btn" onclick="beginQuiz()">Begin the Sorting</button>
+    </div>
+
+    <!-- QUIZ -->
+    <div id="quiz" class="screen">
+      <div class="progress-track" id="progressTrack"></div>
+      <div class="step-label" id="stepLabel"></div>
+      <h2 class="question" id="questionText"></h2>
+      <div class="options" id="optionsList"></div>
+    </div>
+
+    <!-- RESULT -->
+    <div id="result" class="screen">
+      <svg class="sigil" id="resultSigil" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"></svg>
+      <p class="result-house" id="resultHouse"></p>
+      <p class="result-seat" id="resultSeat"></p>
+      <p class="result-body" id="resultBody"></p>
+      <div class="result-traits" id="resultTraits"></div>
+      <div class="footer-note">
+        <button class="restart-btn" onclick="restartQuiz()">Sort Again</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const HOUSES = {
+    kaplan: {
+      name: "House Kaplan",
+      seat: "Mount Spear, Kada",
+      color: "var(--kaplan)",
+      traits: ["Solitary", "Enduring", "Unshakably loyal once earned"],
+      body: "You were built for high, thin air. Kaplan doesn't waste words on court politics or alliances it doesn't need — it survives on its own terms, alone if it must, and that suits you fine. Trust comes slowly from you, but once it's given, it doesn't break. People who mistake your independence for coldness have never seen what you do for the few who actually matter.",
+      sigil: (c) => `
+        <polygon points="50,8 90,88 10,88" stroke="${c}" stroke-width="3" fill="none"/>
+        <line x1="50" y1="8" x2="50" y2="88" stroke="${c}" stroke-width="2" opacity="0.6"/>
+      `
+    },
+    lobo: {
+      name: "House Lobo",
+      seat: "Frostford, Kada",
+      color: "var(--lobo)",
+      traits: ["Fierce", "Pack-bound", "Unforgiving of betrayal"],
+      body: "You don't do anything halfway, least of all loyalty. Lobo holds Frostford through sheer will and pack law, and you understand instinctively what that costs — obedience, yes, but also a kind of devotion other houses can't manufacture. Cross someone you love and you'll remember it forever. Stand beside them and there's nothing you won't do.",
+      sigil: (c) => `
+        <circle cx="50" cy="50" r="38" stroke="${c}" stroke-width="3" fill="none"/>
+        <path d="M30 60 Q50 20 70 60" stroke="${c}" stroke-width="3" fill="none"/>
+      `
+    },
+    wolfe: {
+      name: "House Wolfe",
+      seat: "Graymark, Vresas",
+      color: "var(--wolfe)",
+      traits: ["Hardworking", "Two steps ahead", "Family above all"],
+      body: "You were three moves ahead before anyone else noticed the board was out, and you built that plan with your family standing beside you. Wolfe is the largest house in Sleveran and, by most accounts, the most diverse — its strength was never bloodline purity, it was sheer work ethic and the strategic habit of thinking two steps past the obvious. Graymark's archives are full of plans drafted by people who refused to let their family get caught flat-footed. You'd rather stay up a little later tonight than leave anyone you love unprepared for tomorrow.",
+      sigil: (c) => `
+        <rect x="20" y="20" width="60" height="60" stroke="${c}" stroke-width="3" fill="none"/>
+        <circle cx="50" cy="50" r="10" stroke="${c}" stroke-width="2" fill="none"/>
+      `
+    },
+    greystone: {
+      name: "House Greystone",
+      seat: "Moldorai, Vresas",
+      color: "var(--greystone)",
+      traits: ["Principled", "Exacting", "Hard to move once decided"],
+      body: "Order isn't a preference for you, it's closer to a moral position. Greystone's stone halls run on tradition and discipline because the alternative, to this house, looks like decline — and some part of you agrees completely. You hold yourself to the same standard you hold everyone else to, which makes you trustworthy and, occasionally, exhausting to argue with.",
+      sigil: (c) => `
+        <path d="M50 12 L82 32 V68 L50 88 L18 68 V32 Z" stroke="${c}" stroke-width="3" fill="none"/>
+      `
+    },
+    ravenfall: {
+      name: "House Ravenfall",
+      seat: "Northern Sia",
+      color: "var(--ravenfall)",
+      traits: ["Magnetic", "Curious about everyone", "Plays a long game"],
+      body: "Everyone tells you things, usually before they mean to. Ravenfall built its entire power on knowing what others would rather keep buried, and you have the same instinct — charm first, patience second, and a memory for secrets that never quite empties. You enjoy the room more than almost anyone in it, and that's exactly why the room keeps handing you its truths.",
+      sigil: (c) => `
+        <path d="M50 15 C 70 15, 85 35, 85 55 C 85 75, 65 85, 50 85 C 35 85, 15 75, 15 55 C 15 35, 30 15, 50 15 Z" stroke="${c}" stroke-width="3" fill="none"/>
+        <circle cx="50" cy="52" r="6" stroke="${c}" stroke-width="2" fill="none"/>
+      `
+    },
+    briarwyn: {
+      name: "House Briarwyn",
+      seat: "South Sia",
+      color: "var(--briarwyn)",
+      traits: ["Grounded", "Reliable", "Underestimated on purpose"],
+      body: "You'd rather be useful than impressive, which is exactly why people underestimate you right up until they need you. Briarwyn feeds half of Sia while northern houses call it plain — and like Briarwyn, you've made peace with being overlooked in exchange for being the one everything actually depends on. You show love through showing up, not through saying so.",
+      sigil: (c) => `
+        <path d="M50 85 C 50 55, 30 50, 30 25" stroke="${c}" stroke-width="3" fill="none"/>
+        <path d="M50 85 C 50 55, 70 50, 70 25" stroke="${c}" stroke-width="3" fill="none"/>
+        <circle cx="30" cy="22" r="5" stroke="${c}" stroke-width="2" fill="none"/>
+        <circle cx="70" cy="22" r="5" stroke="${c}" stroke-width="2" fill="none"/>
+      `
+    },
+    drake: {
+      name: "House Drake",
+      seat: "Emberwing, Kada",
+      color: "var(--drake)",
+      traits: ["Guarded", "Possessive of what's sacred", "Built from near-loss"],
+      body: "You almost lost everything once, and some part of you has been guarding against a second time ever since. Drake nearly went extinct a generation back, and what survived doesn't chase growth or influence the way other houses do — it hoards. Relics, old pacts, anything sacred, anything that could be taken: locked away, catalogued, rarely shown. People read you as cold or withholding. You read it as the only promise you've ever kept to yourself.",
+      sigil: (c) => `
+        <path d="M50 10 L62 40 L50 55 L38 40 Z" stroke="${c}" stroke-width="3" fill="none"/>
+        <path d="M50 55 L50 90" stroke="${c}" stroke-width="3" fill="none"/>
+        <path d="M30 70 L50 55 L70 70" stroke="${c}" stroke-width="2" fill="none"/>
+      `
+    },
+    ironmaw: {
+      name: "House Ironmaw",
+      seat: "Oakmaw Fortress, Golis",
+      color: "var(--ironmaw)",
+      traits: ["Direct", "Dominant", "Rigidly traditional underneath it"],
+      body: "You meet everything head-on, every time, and you've stopped apologizing for how that looks to other people. Ironmaw treats diplomacy as a last resort, not a first move, which gets read as recklessness by houses that would rather maneuver around a problem than walk straight into it. What they miss is how traditional you actually are underneath the aggression — old rites, old laws, a code you follow more strictly than most of the houses that call you reckless. Say what you mean, do what the law says, and let anyone with a problem say so to your face.",
+      sigil: (c) => `
+        <rect x="25" y="35" width="50" height="40" stroke="${c}" stroke-width="3" fill="none"/>
+        <path d="M35 35 L50 15 L65 35" stroke="${c}" stroke-width="3" fill="none"/>
+        <line x1="50" y1="45" x2="50" y2="65" stroke="${c}" stroke-width="2"/>
+      `
+    },
+    redwick: {
+      name: "House Redwick",
+      seat: "Songwillow Reach, Golis",
+      color: "var(--redwick)",
+      traits: ["Devoted to the old ways", "Patient", "Answers to older laws than the Crown"],
+      body: "You take your orders from something older than any throne. Redwick orients itself around elven history and druidic law rather than court politics, treating the old seasonal rites and the agreements made with the land itself as more binding than anything Ivern could decree. That makes you slow to engage with outside pressure and nearly impossible to rush — you're playing a longer game than anyone negotiating with you realizes, measured in generations and memory rather than seasons or favors.",
+      sigil: (c) => `
+        <circle cx="50" cy="35" r="18" stroke="${c}" stroke-width="3" fill="none"/>
+        <path d="M50 53 L50 88" stroke="${c}" stroke-width="3" fill="none"/>
+        <path d="M50 70 L35 85 M50 70 L65 85" stroke="${c}" stroke-width="2" fill="none"/>
+      `
+    },
+    thorne: {
+      name: "House Thorne",
+      seat: "Briarhollow",
+      color: "var(--thorne)",
+      traits: ["Courageous", "Quick to act", "Sincerely good-hearted"],
+      body: "You run toward danger before you've finished deciding to. Thorne built its name hunting Sleveran's Dark Creatures, the corrupted things even the Sentinel Order treats as unreasonable, and that constant exposure to real danger shaped a house that prizes bravery as a first principle, not a calculated risk. You don't maneuver through politics well and mostly don't try to — your currency is earned in the field, not traded in a palace. If something needs facing and no one else will, you're already there.",
+      sigil: (c) => `
+        <path d="M50 12 L58 38 L85 38 L63 54 L71 80 L50 64 L29 80 L37 54 L15 38 L42 38 Z" stroke="${c}" stroke-width="2.5" fill="none"/>
+      `
+    }
+  };
+
+  const QUESTIONS = [
+    {
+      text: "Conflict finds you. What's your first move?",
+      options: [
+        ["kaplan", "Retreat to higher ground and face it alone, on your own terms."],
+        ["lobo", "Meet it head-on with your people at your back."],
+        ["wolfe", "Pull your family in close, then work out a plan two steps ahead of it."],
+        ["greystone", "Invoke the rule that already settles this."],
+        ["ravenfall", "Find out who benefits from the chaos, then make sure it's you."],
+        ["briarwyn", "Do the work in front of you and let the rest sort itself out."],
+        ["drake", "Retreat behind locked doors and guard what's yours until it passes."],
+        ["ironmaw", "Walk straight at it, head-on, and sort out the details after."],
+        ["redwick", "Consult the old laws of the land before doing anything else."],
+        ["thorne", "Run toward it before anyone else has even decided to."]
+      ]
+    },
+    {
+      text: "Underneath everything, what do you actually want?",
+      options: [
+        ["kaplan", "To never owe anyone anything."],
+        ["lobo", "A pack that would never leave you."],
+        ["wolfe", "To make sure your family never gets caught off guard."],
+        ["greystone", "Order restored to something that's clearly broken."],
+        ["ravenfall", "To know what everyone else is too afraid to say."],
+        ["briarwyn", "Something that outlasts you."],
+        ["drake", "To never lose what's already yours again."],
+        ["ironmaw", "Respect, given the old way — earned, not negotiated."],
+        ["redwick", "To keep something ancient from disappearing entirely."],
+        ["thorne", "To be standing between danger and whoever can't face it."]
+      ]
+    },
+    {
+      text: "Pick an evening.",
+      options: [
+        ["kaplan", "Alone on a ridge, watching the weather change."],
+        ["lobo", "Around a fire with people who'd die for you."],
+        ["wolfe", "Working late on a plan, with family still in the room working alongside you."],
+        ["greystone", "A formal hall, where everyone knows their place."],
+        ["ravenfall", "A party where every secret in the room is yours by midnight."],
+        ["briarwyn", "A full table and a long day's work finally done."],
+        ["drake", "Alone in a vault, cataloguing something no one else is allowed to see."],
+        ["ironmaw", "A proving match, settled by the old rites, win or lose."],
+        ["redwick", "A circle of ancient trees, reciting history that predates you."],
+        ["thorne", "Out on the road, tracking something that shouldn't exist."]
+      ]
+    },
+    {
+      text: "What's said about you when you're not there?",
+      options: [
+        ["kaplan", "\u201cDoesn't need anyone. Never has.\u201d"],
+        ["lobo", "\u201cLoyal to a fault. Don't cross their people.\u201d"],
+        ["wolfe", "\u201cAlways two steps ahead, and never without their people.\u201d"],
+        ["greystone", "\u201cRigid. Right, usually. Still rigid.\u201d"],
+        ["ravenfall", "\u201cCharming. Also, a little terrifying.\u201d"],
+        ["briarwyn", "\u201cPlain. Reliable. Underestimated.\u201d"],
+        ["drake", "\u201cGuards everything. Trusts no one with it.\u201d"],
+        ["ironmaw", "\u201cReckless, until you realize how many rules they actually follow.\u201d"],
+        ["redwick", "\u201cAnswers to older laws than any crown.\u201d"],
+        ["thorne", "\u201cBrave to the point of foolishness. Wouldn't have it any other way.\u201d"]
+      ]
+    },
+    {
+      text: "Your worst flaw, if you're honest.",
+      options: [
+        ["kaplan", "Too stubborn to ask for help when it would save you."],
+        ["lobo", "Would burn down the world for people who don't deserve it."],
+        ["wolfe", "Work so hard for your family you forget to rest yourself."],
+        ["greystone", "Mistake rigidity for virtue more than you'd admit."],
+        ["ravenfall", "Can't resist a secret even when it costs you."],
+        ["briarwyn", "So used to being overlooked, you stopped speaking up."],
+        ["drake", "Would rather lose something than risk losing it twice."],
+        ["ironmaw", "Picks a fight when a conversation would've worked fine."],
+        ["redwick", "So devoted to the old ways, you miss when the world's already moved."],
+        ["thorne", "Charges in before you've actually got a plan."]
+      ]
+    },
+    {
+      text: "How do you show someone they matter to you?",
+      options: [
+        ["kaplan", "By trusting them with something you've never shown anyone."],
+        ["lobo", "By standing between them and anything that threatens them."],
+        ["wolfe", "By building them into every plan you make from then on."],
+        ["greystone", "By holding them to the same standard you hold yourself."],
+        ["ravenfall", "By giving them access no one else gets."],
+        ["briarwyn", "By showing up, every time, without being asked."],
+        ["drake", "By letting them see something you've sealed away from everyone else."],
+        ["ironmaw", "By standing toe-to-toe with them and never backing down on their behalf."],
+        ["redwick", "By teaching them the history no one else bothers to remember."],
+        ["thorne", "By being the first one through the door when they're in danger."]
+      ]
+    },
+    {
+      text: "If the realm fell apart tomorrow, you'd be the one—",
+      options: [
+        ["kaplan", "Surviving alone in the mountains, just fine without anyone."],
+        ["lobo", "Leading what's left of your people through it together."],
+        ["wolfe", "Already three plans ahead, with your whole family accounted for."],
+        ["greystone", "Trying to rebuild exactly what was lost."],
+        ["ravenfall", "Deciding who gets to know the truth of what happened."],
+        ["briarwyn", "Already rebuilding, one field at a time."],
+        ["drake", "Sealing what's left behind locked doors before anyone else gets to it."],
+        ["ironmaw", "Meeting whatever comes head-on, rules intact, fists ready."],
+        ["redwick", "Making sure the old histories survive whatever's coming."],
+        ["thorne", "Already running toward whatever's causing the most damage."]
+      ]
+    }
+  ];
+
+  let current = 0;
+  let scores = {};
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const el = document.getElementById(id);
+    el.classList.add('active');
+    el.classList.remove('fade');
+    void el.offsetWidth;
+    el.classList.add('fade');
+  }
+
+  function beginQuiz() {
+    current = 0;
+    scores = {};
+    Object.keys(HOUSES).forEach(k => scores[k] = 0);
+    showScreen('quiz');
+    renderQuestion();
+  }
+
+  function renderProgress() {
+    const track = document.getElementById('progressTrack');
+    track.innerHTML = '';
+    for (let i = 0; i < QUESTIONS.length; i++) {
+      const tick = document.createElement('div');
+      tick.className = 'progress-tick' + (i < current ? ' done' : '');
+      track.appendChild(tick);
+    }
+  }
+
+  function toRoman(num) {
+    const romans = ['I','II','III','IV','V','VI','VII','VIII','IX','X'];
+    return romans[num - 1] || num;
+  }
+
+  function renderQuestion() {
+    renderProgress();
+    const q = QUESTIONS[current];
+    document.getElementById('stepLabel').textContent =
+      toRoman(current + 1) + ' of ' + toRoman(QUESTIONS.length);
+    document.getElementById('questionText').textContent = q.text;
+
+    const list = document.getElementById('optionsList');
+    list.innerHTML = '';
+    q.options.forEach(([houseKey, label]) => {
+      const btn = document.createElement('button');
+      btn.className = 'option';
+      btn.textContent = label;
+      btn.onclick = () => selectOption(houseKey);
+      list.appendChild(btn);
+    });
+  }
+
+  function selectOption(houseKey) {
+    scores[houseKey] = (scores[houseKey] || 0) + 1;
+    current++;
+    if (current >= QUESTIONS.length) {
+      showResult();
+    } else {
+      renderQuestion();
+    }
+  }
+
+  function showResult() {
+    let winner = null;
+    let best = -1;
+    const order = Object.keys(HOUSES);
+    order.forEach(key => {
+      if (scores[key] > best) {
+        best = scores[key];
+        winner = key;
+      }
+    });
+
+    const house = HOUSES[winner];
+    document.documentElement.style.setProperty('--result-color', house.color);
+
+    document.getElementById('resultHouse').textContent = house.name;
+    document.getElementById('resultHouse').style.setProperty('--result-color', house.color);
+    document.getElementById('resultSeat').textContent = 'Seat: ' + house.seat;
+    document.getElementById('resultBody').textContent = house.body;
+
+    const sigil = document.getElementById('resultSigil');
+    sigil.innerHTML = house.sigil(house.color);
+
+    const traitsEl = document.getElementById('resultTraits');
+    traitsEl.innerHTML = '';
+    house.traits.forEach(t => {
+      const pill = document.createElement('span');
+      pill.className = 'trait-pill';
+      pill.style.setProperty('--result-color', house.color);
+      pill.textContent = t;
+      traitsEl.appendChild(pill);
+    });
+
+    showScreen('result');
+  }
+
+  function restartQuiz() {
+    showScreen('intro');
+  }
+</script>
+
+</body>
+</html>
