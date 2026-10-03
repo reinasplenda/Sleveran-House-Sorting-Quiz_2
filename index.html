@@ -69,25 +69,32 @@
   }
 
   html, body {
-    height: 100%;
     margin: 0;
+    min-height: 100%;
   }
 
   body {
     background: var(--ink);
     color: var(--parchment);
     font-family: 'Crimson Text', Georgia, 'Times New Roman', serif;
-    min-height: 100%;
+    min-height: 100dvh;
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 0px);
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     padding-left: 16px;
     padding-right: 16px;
+    overflow-y: auto;
     background-image:
       radial-gradient(ellipse at 20% 10%, rgba(198,162,84,0.06), transparent 55%),
       radial-gradient(ellipse at 85% 90%, rgba(198,162,84,0.05), transparent 50%);
+  }
+
+  @media (min-width: 640px) {
+    body {
+      align-items: center;
+    }
   }
 
   .stage {
